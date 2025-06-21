@@ -159,6 +159,31 @@ const Interview = () => {
         />
       </div>
 
+      {/* Current Question - Prominent Display */}
+      <div className="mb-8">
+        <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center text-blue-700">
+              <HelpCircle className="mr-3 h-6 w-6" />
+              질문 {currentQuestion + 1}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl lg:text-4xl font-semibold leading-relaxed text-slate-800 mb-6">
+                {questions[currentQuestion]}
+              </p>
+              
+              <div className="p-4 bg-blue-100 rounded-lg border border-blue-200">
+                <p className="text-base text-blue-800">
+                  💡 <strong>답변 팁:</strong> 구체적인 경험과 결과를 포함하여 답변하면 더 좋은 평가를 받을 수 있습니다.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Video and Controls */}
         <div className="lg:col-span-2">
@@ -268,30 +293,8 @@ const Interview = () => {
           </Card>
         </div>
 
-        {/* Question and Transcription */}
-        <div className="space-y-6">
-          {/* Current Question */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <HelpCircle className="mr-2 h-5 w-5" />
-                현재 질문
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg leading-relaxed text-slate-700">
-                {questions[currentQuestion]}
-              </p>
-              
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-700">
-                  💡 <strong>답변 팁:</strong> 구체적인 경험과 결과를 포함하여 답변하면 더 좋은 평가를 받을 수 있습니다.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Real-time Transcription */}
+        {/* Transcription */}
+        <div>
           <Card>
             <CardHeader>
               <CardTitle>실시간 음성 인식</CardTitle>
