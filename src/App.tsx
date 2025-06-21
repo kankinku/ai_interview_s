@@ -10,6 +10,7 @@ import Interview from "./pages/Interview";
 import Results from "./pages/Results";
 import ImprovementPlan from "./pages/ImprovementPlan";
 import Settings from "./pages/Settings";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/interview" element={<Interview />} />
             <Route path="/results/:sessionId" element={<Results />} />

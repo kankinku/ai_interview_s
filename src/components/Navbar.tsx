@@ -46,9 +46,11 @@ const Navbar = () => {
                 </Link>
               );
             })}
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              로그인
-            </Button>
+            <Link to="/login">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                로그인
+              </Button>
+            </Link>
           </div>
 
           <div className="md:hidden flex items-center">
