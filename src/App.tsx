@@ -11,6 +11,7 @@ import Results from "./pages/Results";
 import ImprovementPlan from "./pages/ImprovementPlan";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 
