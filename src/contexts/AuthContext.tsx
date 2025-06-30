@@ -1,147 +1,79 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+// 타입 정의
+interface User {
+    id: number;
+    name: string;
+    email: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+    user: User | null;
+    signUp: (email: string, password: string, name: string) => Promise<any>;
+    login: (email: string, password: string) => Promise<any>;
+    logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+// Provider
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
+    const signUp = async (email: string, password: string, name: string) => {
+        const res = await fetch("http://localhost:3000/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, name }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "회원가입 실패");
+        return data;
+    };
+
+    const login = async (email: string, password: string) => {
+        const res = await fetch("http://localhost:3000/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "로그인 실패");
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+
+        return data;
+    };
+
+    const logout = () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        setUser(null);
+    };
+
+    const value = { user, signUp, login, logout };
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // 인증 상태 변화 리스너 설정
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // 기존 세션 확인
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signUp = async (email: string, password: string, name: string) => {
-    try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            name: name
-          }
-        }
-      });
-
-      if (error) {
-        console.error('회원가입 오류:', error);
-        toast({
-          title: "회원가입 실패",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "회원가입 성공!",
-          description: "이메일을 확인하여 계정을 활성화해주세요.",
-        });
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('회원가입 중 오류:', error);
-      return { error };
+// ✅ 반드시 export 해줘야 Signup.tsx, Login.tsx에서 사용할 수 있음
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth는 AuthProvider 안에서만 사용할 수 있습니다.");
     }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('로그인 오류:', error);
-        toast({
-          title: "로그인 실패",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "로그인 성공!",
-          description: "환영합니다.",
-        });
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('로그인 중 오류:', error);
-      return { error };
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('로그아웃 오류:', error);
-        toast({
-          title: "로그아웃 실패",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "로그아웃 완료",
-          description: "안전하게 로그아웃되었습니다.",
-        });
-      }
-    } catch (error) {
-      console.error('로그아웃 중 오류:', error);
-    }
-  };
-
-  const value = {
-    user,
-    session,
-    loading,
-    signUp,
-    signIn,
-    signOut,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return context;
 };

@@ -1,5 +1,5 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "@/lib/axios";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,35 +16,27 @@ import {
   Brain
 } from "lucide-react";
 
+type Interview = {
+  id: number;
+  position: string;
+  score: number;
+  status: string;
+  date: string;
+  duration_minutes: number | null;
+  learning_field: string;
+  preferred_language: string;
+};
+
 const Dashboard = () => {
   const [selectedGoal, setSelectedGoal] = useState(85);
+  const [recentInterviews, setRecentInterviews] = useState<Interview[]>([]);
 
-  const recentInterviews = [
-    {
-      id: 1,
-      date: "2024-01-15",
-      position: "프론트엔드 개발자",
-      score: 78,
-      status: "완료",
-      duration: "25분"
-    },
-    {
-      id: 2,
-      date: "2024-01-12",
-      position: "풀스택 개발자", 
-      score: 82,
-      status: "완료",
-      duration: "30분"
-    },
-    {
-      id: 3,
-      date: "2024-01-10",
-      position: "백엔드 개발자",
-      score: 75,
-      status: "완료", 
-      duration: "28분"
-    }
-  ];
+  useEffect(() => {
+    axios
+      .get("/api/interviews")
+      .then((res) => setRecentInterviews(res.data))
+      .catch((err) => console.error("면접 데이터 불러오기 실패:", err));
+  }, []);
 
   const skillAreas = [
     { name: "기술 역량", score: 85, color: "bg-blue-500" },
@@ -160,7 +152,11 @@ const Dashboard = () => {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-slate-600">
                         <span>{interview.date}</span>
-                        <span>{interview.duration}</span>
+                        <span>
+                          {interview.duration_minutes !== null
+                            ? `${interview.duration_minutes}분`
+                            : "시간 미기록"}
+                        </span>
                       </div>
                     </div>
                     <div className="text-right">
