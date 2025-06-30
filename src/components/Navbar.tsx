@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, User, Settings, BarChart3 } from "lucide-react";
+import { Brain, Menu, X, User, Settings, BarChart3, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -16,6 +18,11 @@ const Navbar = () => {
     { path: "/improvement", label: "학습 로드맵", icon: User },
     { path: "/settings", label: "설정", icon: Settings },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsOpen(false);
+  };
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
@@ -29,7 +36,7 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            {navItems.map((item) => {
+            {user && navItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
@@ -46,11 +53,22 @@ const Navbar = () => {
                 </Link>
               );
             })}
-            <Link to="/login">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                로그인
-              </Button>
-            </Link>
+            
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-slate-600">안녕하세요, {user.email}</span>
+                <Button size="sm" variant="outline" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-1" />
+                  로그아웃
+                </Button>
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                  로그인
+                </Button>
+              </Link>
+            )}
           </div>
 
           <div className="md:hidden flex items-center">
@@ -67,7 +85,7 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {navItems.map((item) => {
+              {user && navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
@@ -85,6 +103,22 @@ const Navbar = () => {
                   </Link>
                 );
               })}
+              
+              {user ? (
+                <div className="px-3 py-2 space-y-2">
+                  <p className="text-sm text-slate-600">안녕하세요, {user.email}</p>
+                  <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
+                    <LogOut className="h-4 w-4 mr-1" />
+                    로그아웃
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/login" onClick={() => setIsOpen(false)}>
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 w-full mx-3">
+                    로그인
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         )}
