@@ -22,6 +22,7 @@ const Signup = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const [formData, setFormData] = useState({
+        name: "",
         user_identifier: "",
         password: "",
         confirmPassword: "",
@@ -50,8 +51,11 @@ const Signup = () => {
         setIsLoading(true);
 
         try {
-            const { error } = await signUp(formData.user_identifier, formData.password);
-
+            const { error } = await signUp(
+                formData.user_identifier,
+                formData.password,
+                formData.name
+            );
 
             if (!error) {
                 navigate("/login");
@@ -67,7 +71,7 @@ const Signup = () => {
     };
 
     const handleInputChange = (field: string, value: string | boolean) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
     return (
@@ -81,18 +85,30 @@ const Signup = () => {
                         </span>
                     </Link>
                     <h1 className="text-2xl font-bold text-slate-900 mb-2">회원가입</h1>
-                    <p className="text-slate-600">간단한 정보만 입력하여 가입하세요</p>
+                    <p className="text-slate-600">새 계정을 만들어 AI 면접을 시작하세요</p>
                 </div>
 
                 <Card className="shadow-lg border-0">
                     <CardHeader className="space-y-1">
                         <CardTitle className="text-xl text-center">회원가입</CardTitle>
                         <CardDescription className="text-center">
-                            이메일(ID)과 비밀번호를 입력하세요
+                            필요한 정보를 입력하여 계정을 만들어보세요
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">이름</Label>
+                                <Input
+                                    id="name"
+                                    type="text"
+                                    placeholder="이름을 입력하세요"
+                                    value={formData.name}
+                                    onChange={(e) => handleInputChange("name", e.target.value)}
+                                    required
+                                />
+                            </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="user_identifier">이메일(ID)</Label>
                                 <Input
@@ -132,6 +148,7 @@ const Signup = () => {
                                         )}
                                     </Button>
                                 </div>
+                                <p className="text-xs text-slate-500">최소 6자 이상</p>
                             </div>
 
                             <div className="space-y-2">
@@ -205,7 +222,11 @@ const Signup = () => {
                             <Button
                                 type="submit"
                                 className="w-full bg-blue-600 hover:bg-blue-700"
-                                disabled={!formData.agreeTerms || !formData.agreePrivacy || isLoading}
+                                disabled={
+                                    !formData.agreeTerms ||
+                                    !formData.agreePrivacy ||
+                                    isLoading
+                                }
                             >
                                 <CheckCircle className="w-4 h-4 mr-2" />
                                 {isLoading ? "계정 생성 중..." : "계정 만들기"}
@@ -214,7 +235,10 @@ const Signup = () => {
 
                         <div className="mt-6 text-center text-sm">
                             <span className="text-slate-600">이미 계정이 있으신가요? </span>
-                            <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                            <Link
+                                to="/login"
+                                className="text-blue-600 hover:text-blue-700 font-medium"
+                            >
                                 로그인
                             </Link>
                         </div>

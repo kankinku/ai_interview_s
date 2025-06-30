@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom"; // ✅ navigate 추가
 import { Button } from "@/components/ui/button";
 import { Brain, Menu, X, User, Settings, BarChart3, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,7 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const navigate = useNavigate(); // ✅ navigate 사용
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -19,9 +19,10 @@ const Navbar = () => {
     { path: "/settings", label: "설정", icon: Settings },
   ];
 
-  const handleSignOut = async () => {
-    await signOut();
-    setIsOpen(false);
+  const handleLogout = async () => {
+    await logout();          // 로그아웃 처리
+    setIsOpen(false);        // 모바일 메뉴 닫기
+    navigate("/");           // ✅ index 페이지로 이동
   };
 
   return (
@@ -53,11 +54,11 @@ const Navbar = () => {
                 </Link>
               );
             })}
-            
+
             {user ? (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-slate-600">안녕하세요, {user.email}</span>
-                <Button size="sm" variant="outline" onClick={handleSignOut}>
+                <Button size="sm" variant="outline" onClick={handleLogout}>
                   <LogOut className="h-4 w-4 mr-1" />
                   로그아웃
                 </Button>
@@ -72,11 +73,7 @@ const Navbar = () => {
           </div>
 
           <div className="md:hidden flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(!isOpen)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
@@ -103,11 +100,11 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-              
+
               {user ? (
                 <div className="px-3 py-2 space-y-2">
                   <p className="text-sm text-slate-600">안녕하세요, {user.email}</p>
-                  <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
+                  <Button size="sm" variant="outline" onClick={handleLogout} className="w-full">
                     <LogOut className="h-4 w-4 mr-1" />
                     로그아웃
                   </Button>
